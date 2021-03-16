@@ -87,7 +87,9 @@ class StateProvider extends Component<StateContextProps, StateContextState> {
     // Panning on window to allow panning when mouse is out of wrapper
     window.addEventListener(
       "mousedown",
-      () => {
+      (event: any) => {
+        event = event || window.event;
+        event.preventDefault();
         if ("which" in event && event.which === 3) {
           // Gecko (Firefox), WebKit (Safari/Chrome) & Opera
           this.handleStartPanning;
@@ -190,7 +192,7 @@ class StateProvider extends Component<StateContextProps, StateContextState> {
   // Wheel
   //////////
 
-  handleWheel = (event) => {
+  handleWheel = event => {
     const {
       scale,
       wheel: { disabled, wheelEnabled, touchPadEnabled },
@@ -251,22 +253,22 @@ class StateProvider extends Component<StateContextProps, StateContextState> {
   // Panning
   //////////
 
-  checkPanningTarget = (event) => {
+  checkPanningTarget = event => {
     const {
       pan: { disableOnTarget },
     } = this.stateProvider;
 
     return (
       disableOnTarget
-        .map((tag) => tag.toUpperCase())
+        .map(tag => tag.toUpperCase())
         .includes(event.target.tagName) ||
-      disableOnTarget.find((element) =>
+      disableOnTarget.find(element =>
         event.target.classList.value.includes(element),
       )
     );
   };
 
-  checkIsPanningActive = (event) => {
+  checkIsPanningActive = event => {
     const {
       pan: { disabled },
     } = this.stateProvider;
@@ -293,7 +295,7 @@ class StateProvider extends Component<StateContextProps, StateContextState> {
     handleCallback(this.props.onPanningStart, this.getCallbackProps());
   };
 
-  handleStartPanning = (event) => {
+  handleStartPanning = event => {
     const {
       wrapperComponent,
       scale,
@@ -325,7 +327,7 @@ class StateProvider extends Component<StateContextProps, StateContextState> {
     }
   };
 
-  handlePanning = (event) => {
+  handlePanning = event => {
     if (this.isDown) event.preventDefault();
     if (this.checkIsPanningActive(event)) return;
     event.stopPropagation();
@@ -361,7 +363,7 @@ class StateProvider extends Component<StateContextProps, StateContextState> {
   // Pinch
   //////////
 
-  handlePinchStart = (event) => {
+  handlePinchStart = event => {
     const { scale } = this.stateProvider;
     event.preventDefault();
     event.stopPropagation();
@@ -376,7 +378,7 @@ class StateProvider extends Component<StateContextProps, StateContextState> {
     handleCallback(this.props.onPinchingStart, this.getCallbackProps());
   };
 
-  handlePinch = (event) => {
+  handlePinch = event => {
     this.isDown = false;
     handleZoomPinch.call(this, event);
     handleCallback(this.props.onPinching, this.getCallbackProps());
@@ -398,7 +400,7 @@ class StateProvider extends Component<StateContextProps, StateContextState> {
   // Touch Events
   //////////
 
-  handleTouchStart = (event) => {
+  handleTouchStart = event => {
     const {
       wrapperComponent,
       contentComponent,
@@ -414,7 +416,7 @@ class StateProvider extends Component<StateContextProps, StateContextState> {
     if (touches && touches.length === 2) return this.handlePinchStart(event);
   };
 
-  handleTouch = (event) => {
+  handleTouch = event => {
     const { pan, pinch, options } = this.stateProvider;
     if (options.disabled) return;
     if (!pan.disabled && event.touches.length === 1)
@@ -432,7 +434,7 @@ class StateProvider extends Component<StateContextProps, StateContextState> {
   // Controls
   //////////
 
-  zoomIn = (event) => {
+  zoomIn = event => {
     const {
       zoomIn: { disabled, step },
       options,
@@ -445,7 +447,7 @@ class StateProvider extends Component<StateContextProps, StateContextState> {
     handleZoomControls.call(this, 1, step);
   };
 
-  zoomOut = (event) => {
+  zoomOut = event => {
     const {
       zoomOut: { disabled, step },
       options,
@@ -458,7 +460,7 @@ class StateProvider extends Component<StateContextProps, StateContextState> {
     handleZoomControls.call(this, -1, step);
   };
 
-  handleDbClick = (event) => {
+  handleDbClick = event => {
     const {
       options,
       doubleClick: { disabled, step },
@@ -595,11 +597,11 @@ class StateProvider extends Component<StateContextProps, StateContextState> {
   // Setters
   //////////
 
-  setWrapperComponent = (wrapperComponent) => {
+  setWrapperComponent = wrapperComponent => {
     this.setState({ wrapperComponent });
   };
 
-  setContentComponent = (contentComponent) => {
+  setContentComponent = contentComponent => {
     this.setState({ contentComponent }, () => {
       const {
         wrapperComponent,
@@ -646,9 +648,8 @@ class StateProvider extends Component<StateContextProps, StateContextState> {
     const { previousScale, scale, positionX, positionY } = this.stateProvider;
     if (!contentComponent)
       return console.error("There is no content component");
-    const transform = `translate(${posX || positionX}px, ${
-      posY || positionY
-    }px) scale(${newScale || scale})`;
+    const transform = `translate(${posX || positionX}px, ${posY ||
+      positionY}px) scale(${newScale || scale})`;
     contentComponent.style.transform = transform;
     contentComponent.style.WebkitTransform = transform;
     // force update to inject state to the context
