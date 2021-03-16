@@ -85,7 +85,11 @@ class StateProvider extends Component<StateContextProps, StateContextState> {
     const passiveOption = makePassiveEventOption(false);
 
     // Panning on window to allow panning when mouse is out of wrapper
-    window.addEventListener("auxclick", this.handleStartPanning, passiveOption);
+    window.addEventListener(
+      "mousedown",
+      this.handleStartPanning,
+      passiveOption,
+    );
     window.addEventListener("mousemove", this.handlePanning, passiveOption);
     window.addEventListener("mouseup", this.handleStopPanning, passiveOption);
   }
@@ -291,25 +295,30 @@ class StateProvider extends Component<StateContextProps, StateContextState> {
     const { target, touches } = event;
 
     if (
-      disabled ||
-      this.stateProvider.options.disabled ||
-      (wrapperComponent && !wrapperComponent.contains(target)) ||
-      this.checkPanningTarget(event) ||
-      scale < minScale ||
-      scale > maxScale
-    )
-      return;
+      ("which" in event && event.which === 3) ||
+      ("button" in event && event.button === 2)
+    ) {
+      if (
+        disabled ||
+        this.stateProvider.options.disabled ||
+        (wrapperComponent && !wrapperComponent.contains(target)) ||
+        this.checkPanningTarget(event) ||
+        scale < minScale ||
+        scale > maxScale
+      )
+        return;
 
-    handleDisableAnimation.call(this);
-    this.bounds = handleCalculateBounds.call(this, scale, limitToWrapper);
+      handleDisableAnimation.call(this);
+      this.bounds = handleCalculateBounds.call(this, scale, limitToWrapper);
 
-    // Mobile points
-    if (touches && touches.length === 1) {
-      this.handleSetUpPanning(touches[0].clientX, touches[0].clientY);
-    }
-    // Desktop points
-    if (!touches) {
-      this.handleSetUpPanning(event.clientX, event.clientY);
+      // Mobile points
+      if (touches && touches.length === 1) {
+        this.handleSetUpPanning(touches[0].clientX, touches[0].clientY);
+      }
+      // Desktop points
+      if (!touches) {
+        this.handleSetUpPanning(event.clientX, event.clientY);
+      }
     }
   };
 
