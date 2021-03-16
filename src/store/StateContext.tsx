@@ -85,21 +85,7 @@ class StateProvider extends Component<StateContextProps, StateContextState> {
     const passiveOption = makePassiveEventOption(false);
 
     // Panning on window to allow panning when mouse is out of wrapper
-    window.addEventListener(
-      "mousedown",
-      (event: any) => {
-        event = event || window.event;
-        event.preventDefault();
-        if ("which" in event && event.which === 3) {
-          // Gecko (Firefox), WebKit (Safari/Chrome) & Opera
-          this.handleStartPanning;
-        } else if ("button" in event && event.button === 2) {
-          // IE, Opera
-          this.handleStartPanning;
-        }
-      },
-      passiveOption,
-    );
+    window.addEventListener("auxclick", this.handleStartPanning, passiveOption);
     window.addEventListener("mousemove", this.handlePanning, passiveOption);
     window.addEventListener("mouseup", this.handleStopPanning, passiveOption);
   }
